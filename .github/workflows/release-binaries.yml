@@ -84,6 +84,9 @@ jobs:
             runner: windows-2022
             pgo: true
             mingw: true
+          # TigreWudz: Windows MSVC, para comparar; e o unico com FFmpeg com AV1 (videos do jogo).
+          - platform: windows-x86_64
+            runner: windows-2022
 
     steps:
       - name: Check out source
@@ -284,6 +287,8 @@ jobs:
       - name: Configure Windows
         if: matrix.platform == 'windows-x86_64'
         shell: bash
+        env:
+          TITLEBARFORMATIDLE: "TigreWudz | Fritchii v5"
         run: >-
           cmake -S . -B build/release -G Ninja
           -DCMAKE_BUILD_TYPE=Release
@@ -294,8 +299,9 @@ jobs:
           -DYUZU_ROOM_STANDALONE=OFF
           -DYUZU_USE_BUNDLED_QT=OFF
           -DYUZU_USE_BUNDLED_SDL3=ON
-          -DENABLE_UPDATE_CHECKER=ON
-          -DLICHII_BUILD_TAG=build-${{ github.run_number }}
+          -DENABLE_UPDATE_CHECKER=OFF
+          -DENABLE_WERROR=OFF
+          -DLICHII_BUILD_TAG=
           -DLICHII_BUILD_PLATFORM=${{ matrix.platform }}
           -DUSE_DISCORD_PRESENCE=OFF
           -DCMAKE_C_COMPILER_LAUNCHER=sccache
