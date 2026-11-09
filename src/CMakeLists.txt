@@ -87,6 +87,12 @@ if (MSVC AND NOT CXX_CLANG)
     # /Zc:preprocessor    - Enable standards-conforming preprocessor
     # /Zc:throwingNew     - Let codegen assume `operator new` (without std::nothrow) will never return null
     # /GT                 - Supports fiber safety for data allocated using static thread-local storage
+    # TigreWudz: ENABLE_WERROR=OFF keeps these as level 4 warnings instead of errors
+    if (ENABLE_WERROR)
+        set(_msvc_we /we)
+    else()
+        set(_msvc_we /w4)
+    endif()
     add_compile_options(
         /MP
         /Zm200
@@ -106,23 +112,23 @@ if (MSVC AND NOT CXX_CLANG)
         /external:anglebrackets # Treats all headers included by #include <header>, where the header file is enclosed in angle brackets (< >), as external headers
         /external:W0            # Sets the default warning level to 0 for external headers, effectively disabling warnings for them.
 
-        /we4062 # Enumerator 'identifier' in a switch of enum 'enumeration' is not handled
-        /we4189 # 'identifier': local variable is initialized but not referenced
-        /we4265 # 'class': class has virtual functions, but destructor is not virtual
-        /we4388 # 'expression': signed/unsigned mismatch
-        /we4389 # 'operator': signed/unsigned mismatch
-        /we4456 # Declaration of 'identifier' hides previous local declaration
-        /we4457 # Declaration of 'identifier' hides function parameter
-        /we4458 # Declaration of 'identifier' hides class member
-        /we4459 # Declaration of 'identifier' hides global declaration
+        ${_msvc_we}4062 # Enumerator 'identifier' in a switch of enum 'enumeration' is not handled
+        ${_msvc_we}4189 # 'identifier': local variable is initialized but not referenced
+        ${_msvc_we}4265 # 'class': class has virtual functions, but destructor is not virtual
+        ${_msvc_we}4388 # 'expression': signed/unsigned mismatch
+        ${_msvc_we}4389 # 'operator': signed/unsigned mismatch
+        ${_msvc_we}4456 # Declaration of 'identifier' hides previous local declaration
+        ${_msvc_we}4457 # Declaration of 'identifier' hides function parameter
+        ${_msvc_we}4458 # Declaration of 'identifier' hides class member
+        ${_msvc_we}4459 # Declaration of 'identifier' hides global declaration
         /w4505 # 'function': unreferenced local function has been removed
-        /we4547 # 'operator': operator before comma has no effect; expected operator with side-effect
-        /we4549 # 'operator1': operator before comma has no effect; did you intend 'operator2'?
-        /we4555 # Expression has no effect; expected expression with side-effect
-        /we4826 # Conversion from 'type1' to 'type2' is sign-extended. This may cause unexpected runtime behavior.
-        /we5038 # data member 'member1' will be initialized after data member 'member2'
-        /we5233 # explicit lambda capture 'identifier' is not used
-        /we5245 # 'function': unreferenced function with internal linkage has been removed
+        ${_msvc_we}4547 # 'operator': operator before comma has no effect; expected operator with side-effect
+        ${_msvc_we}4549 # 'operator1': operator before comma has no effect; did you intend 'operator2'?
+        ${_msvc_we}4555 # Expression has no effect; expected expression with side-effect
+        ${_msvc_we}4826 # Conversion from 'type1' to 'type2' is sign-extended. This may cause unexpected runtime behavior.
+        ${_msvc_we}5038 # data member 'member1' will be initialized after data member 'member2'
+        ${_msvc_we}5233 # explicit lambda capture 'identifier' is not used
+        ${_msvc_we}5245 # 'function': unreferenced function with internal linkage has been removed
 
         /wd4100 # 'identifier': unreferenced formal parameter
         /wd4324 # 'struct_name': structure was padded due to __declspec(align())
