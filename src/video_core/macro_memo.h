@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <span>
 #include <type_traits>
 #include <utility>
@@ -170,7 +171,15 @@ public:
 
 private:
     static constexpr std::size_t HeaderWords = 5;
-    static constexpr std::size_t MaxArenaWords = std::size_t{1} << 22; // 16 MiB
+    // 16 MiB; EDEN_NX2_MEMO_MB (16-256) sets it, so a game whose live records come close to
+    // filling the arena compacts and clears less often (each clear interprets ~20,000 calls).
+    static inline const std::size_t MaxArenaWords = [] {
+        std::size_t megabytes = 16;
+        if (const char* value = std::getenv("EDEN_NX2_MEMO_MB")) {
+            megabytes = std::clamp<std::size_t>(std::strtoull(value, nullptr, 10), 16, 256);
+        }
+        return megabytes * (std::size_t{1} << 20) / sizeof(std::uint32_t);
+    }();
 
     static std::uint64_t Hash(std::uint32_t start, std::span<const std::uint32_t> parameters) {
         std::uint64_t hash = 0x9e3779b97f4a7c15ULL ^ (std::uint64_t{start} << 32) ^ parameters.size();

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 
 #include "common/logging.h"
 #include "video_core/nx2_debug_control.h"
@@ -236,7 +237,13 @@ HostPacer::Clock::time_point HostPacer::Target(Clock::time_point now) {
     // earlier for 2 s (1 s at 30 fps and below) in a row, show one a refresh early (one short
     // frame) to drop that wait. At 30 fps without it, Ocarina's frames waited ~30 ms each after
     // a few hitches: nearly a frame of extra input lag.
-    if (k >= 2 && intended - ToNs(refresh_ns + lead_ns + 1e6) > now) {
+    // EDEN_NX2_PACE_CATCHUP=0 keeps the schedule (no short frame): for a test of whether the
+    // catch-up's one short frame is itself seen as a hitch at 30 fps on a 60 Hz display.
+    static const bool catch_up = [] {
+        const char* value = std::getenv("EDEN_NX2_PACE_CATCHUP");
+        return value == nullptr || value[0] != '0';
+    }();
+    if (catch_up && k >= 2 && intended - ToNs(refresh_ns + lead_ns + 1e6) > now) {
         if (++early_streak >= (k == 2 ? 120U : 30U)) {
             early_streak = 0;
             intended -= ToNs(refresh_ns);
